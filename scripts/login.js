@@ -8,6 +8,8 @@ const registrationEmailInput = document.getElementById("registration-email");
 const registrationPasswordInput = document.getElementById(
   "registration-password"
 );
+const confirmRegistrationPasswordInput =
+  document.getElementById("confirm-password");
 
 // Открытие и закрытие модального окна
 user.addEventListener("click", (event) => {
@@ -50,6 +52,10 @@ togglePasswordVisibility(
 togglePasswordVisibility(
   registrationPasswordInput,
   document.getElementById("registration-togglePassword")
+);
+togglePasswordVisibility(
+  confirmRegistrationPasswordInput,
+  document.getElementById("confirm-togglePassword")
 );
 
 // Переключение между формами
@@ -96,63 +102,80 @@ const displayErrors = (errors) => {
 };
 
 // Обработка отправки формы входа
-document.querySelector(".login form").addEventListener("submit", (event) => {
-  event.preventDefault();
+document
+  .querySelector(".login form")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  const formData = {
-    "login-email": loginEmailInput.value,
-    "login-password": loginPasswordInput.value,
-  };
+    const formData = {
+      "login-email": loginEmailInput.value,
+      "login-password": loginPasswordInput.value,
+    };
 
-  fetch("validate_login.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(formData),
-  })
-    .then((response) => response.json())
-    .then((data) => {
+    try {
+      const response = await fetch("validate_login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+
       if (data.errors) {
         displayErrors(data.errors);
       } else if (data.success) {
         modal.style.display = "none";
-        console.log(data.success);
+        showNotification(data.success);
       }
-    })
-    .catch((error) => console.error("Error:", error));
-});
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
 
 // Обработка отправки формы регистрации
 document
   .querySelector(".registration form")
-  .addEventListener("submit", (event) => {
+  .addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const formData = {
       "registration-email": registrationEmailInput.value,
       "registration-password": registrationPasswordInput.value,
-      "confirm-password": document.getElementById("confirm-password").value,
+      "confirm-password": confirmRegistrationPasswordInput.value,
     };
 
-    fetch("validate_registration.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.errors) {
-          displayErrors(data.errors);
-        } else if (data.success) {
-          modal.style.display = "none";
-          console.log(data.success);
-          // Здесь можно добавить перенаправление или другую логику при успешной регистрации
-        }
-      })
-      .catch((error) => console.error("Error:", error));
+    try {
+      const response = await fetch("validate_registration.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+
+      if (data.errors) {
+        displayErrors(data.errors);
+      } else if (data.success) {
+        modal.style.display = "none";
+        showNotification(data.success);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   });
+
+// Функция для показа уведомления
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.classList.add("notification", "success"); // Добавляем классы для стиля
+  notification.textContent = message; // Устанавливаем текст уведомления
+
+  document.body.appendChild(notification); // Добавляем уведомление в документ
+  notification.classList.add("show"); // Показываем уведомление
+
+  setTimeout(() => notification.remove(), 3000); // Удаляем уведомление через 3 секунды
+}

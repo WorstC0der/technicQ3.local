@@ -51,7 +51,6 @@ try {
             exit();
         }
 
-        // Пример успешного ответа
         echo json_encode(['success' => 'Успешный вход!']);
         exit();
     }

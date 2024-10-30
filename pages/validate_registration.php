@@ -72,10 +72,9 @@ try {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         // Вставка нового пользователя в базу данных
-        $stmt = $pdo->prepare('INSERT INTO users (email, password) VALUES (?, ?)');
-        $stmt->execute([$email, $hashedPassword]);
+        // $stmt = $pdo->prepare('INSERT INTO users (email, password) VALUES (?, ?)');
+        // $stmt->execute([$email, $hashedPassword]);
 
-        // Пример успешного ответа
         echo json_encode(['success' => 'Регистрация прошла успешно!']);
         exit();
     }
